@@ -2,19 +2,29 @@ package com.geocraft.whitelist;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
 public final class GeocraftWhitelist extends JavaPlugin implements CommandExecutor {
 
     @Override
     public void onEnable() {
-        getLogger().info("GeocraftWhitelist has been enabled successfully!");
+        // Plugin startup logic
         getCommand("gwhitelist").setExecutor(this);
+        getLogger().info("GeocraftWhitelist has been enabled successfully!");
+        
+        // Ensure data folder exists
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
     }
 
     @Override
@@ -24,7 +34,7 @@ public final class GeocraftWhitelist extends JavaPlugin implements CommandExecut
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("geocraft.admin")) {
+        if (!sender.hasPermission("geocraft.whitelist")) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
         }
@@ -35,18 +45,17 @@ public final class GeocraftWhitelist extends JavaPlugin implements CommandExecut
         }
 
         String action = args[0].toLowerCase();
-        String targetName = args[1];
+        String targetPlayer = args[1];
 
         if (action.equals("add")) {
-            OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
-            target.setWhitelisted(true);
-            sender.sendMessage(ChatColor.GREEN + targetName + " has been added to the whitelist.");
+            // Dispatch native minecraft whitelist command safely from console
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "whitelist add " + targetPlayer);
+            sender.sendMessage(ChatColor.GREEN + "Successfully whitelisted " + targetPlayer + "!");
         } else if (action.equals("remove")) {
-            OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
-            target.setWhitelisted(false);
-            sender.sendMessage(ChatColor.YELLOW + targetName + " has been removed from the whitelist.");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "whitelist remove " + targetPlayer);
+            sender.sendMessage(ChatColor.RED + "Successfully removed " + targetPlayer + " from whitelist.");
         } else {
-            sender.sendMessage(ChatColor.RED + "Unknown action. Use 'add' or 'remove'.");
+            sender.sendMessage(ChatColor.YELLOW + "Usage: /gwhitelist <add|remove> <player>");
         }
 
         return true;
