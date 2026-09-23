@@ -1,0 +1,9 @@
+name: GeocraftWhitelist
+version: 1.0
+main: com.geocraft.whitelist.GeocraftWhitelist
+api-version: '1.21'
+commands:
+  gwhitelist:
+    description: Manages the server whitelist
+    permission: geocraft.admin
+    usage: /gwhitelist <add/remove> <player>
